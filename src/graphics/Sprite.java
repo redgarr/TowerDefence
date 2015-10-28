@@ -1,5 +1,7 @@
 package graphics;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 public class Sprite 
 {
@@ -68,5 +70,25 @@ public class Sprite
 	{
 		return new AnimatedSprite(32, 2, 0, SpriteSheet.actors, 5);
 	}
+	
+	public BufferedImage getSpriteAsImage() 
+	{
+		BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+		int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+		
+		for(int i=0; i < pixels.length; i++)
+		{
+			if(i<32)
+			{
+				continue;
+			}
+			
+			pixels[i] = this.pixels[i];
+		}
+		
+		return image;
+	}
+	
+	
 
 }

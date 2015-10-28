@@ -8,6 +8,8 @@ import java.util.List;
 import actors.AbstractActor;
 import actors.Actor;
 import actors.HostileActor;
+import events.CurrencyChangeEvent;
+import events.CurrencyListener;
 import events.TileChangeListener;
 import events.TileSelectionChangedEvent;
 import routing.PathfindingModule;
@@ -15,6 +17,7 @@ import tiles.FloorTile;
 import tiles.RockTile;
 import tiles.Tile;
 import tower.SimpleTower;
+import tower.Tower;
 
 public class GameController 
 {
@@ -24,15 +27,19 @@ public class GameController
 	Game game;
 	Tile selectedTile;
 	private PathfindingModule pathFinder;
-	
+	private int credits;
 	private List<TileChangeListener> tileChangeListeners;
+	private List<CurrencyListener> currencyListeners;
+	private Tile activeTile;
 	
 	public GameController(Game game) 
 	{
 		this.game = game;
+		this.activeTile = new SimpleTower(0, 0, this);
 		tiles = new Tile[numTiles];
 		actors = new ArrayList<Actor>();
 		tileChangeListeners = new ArrayList<TileChangeListener>();
+		currencyListeners = new ArrayList<CurrencyListener>();
 		
 		generateMap();
 		createActors(); 
@@ -57,10 +64,15 @@ public class GameController
 			double row =  Math.floor(i/32);
 			tiles[i] = new RockTile((i*32) % Game.width, (int)row*32);
 		}
-		placeTileAtPixels(16*32, 0*32, false);
-		placeTileAtPixels(16*32, 1*32, false);
-		placeTileAtPixels(16*32, 16*32, false);
-		placeTileAtPixels(16*32, 17*32, false);
+		Tile temp = activeTile;
+		activeTile = new FloorTile(0,0);
+		
+		placeTileAtPixels(16*32, 0*32);
+		placeTileAtPixels(16*32, 1*32);
+		placeTileAtPixels(16*32, 16*32);
+		placeTileAtPixels(16*32, 17*32);
+		
+		activeTile = temp;
 	}
 	
 	public void tick()
@@ -89,6 +101,11 @@ public class GameController
 		tileChangeListeners.add(listener);
 	}
 	
+	public void registerCurrencyListener(CurrencyListener listener)
+	{
+		currencyListeners.add(listener);
+	}
+	
 	public void removeTileChangeListener(TileChangeListener listener)
 	{
 		tileChangeListeners.remove(listener);
@@ -99,6 +116,14 @@ public class GameController
 		for(TileChangeListener listener : tileChangeListeners)
 		{
 			listener.tileSelectionChangedEvent(new TileSelectionChangedEvent(source, data));
+		}
+	}
+	
+	public void fireCurrencyChanged(Object source, Object data)
+	{
+		for(CurrencyListener listener : currencyListeners)
+		{
+			listener.currencyChangeEvent(new CurrencyChangeEvent(source, data));
 		}
 	}
 	
@@ -139,6 +164,10 @@ public class GameController
 		if(currTile == selectedTile)
 		{
 			fireTileChanged(this, tile);
+		}
+		if(tile instanceof Tower)
+		{
+			subtractCredits((int)((Tower) tile).getCost());
 		}
 	}
 	
@@ -190,17 +219,25 @@ public class GameController
 		return tiles;
 	}
 	
-	public void placeTileAtPixels(int x, int y, boolean tower)
+	public void placeTileAtPixels(int x, int y)
 	{
-		Tile tile;
-		if(tower)
+		Tile tile = null;
+		
+		if(activeTile instanceof SimpleTower)
 		{
 			tile = new SimpleTower(x - (x%32), y - (y%32), this);
 		}
 		else
+		if(activeTile instanceof FloorTile)
 		{
 			tile = new FloorTile(x - (x%32), y - (y%32));
 		}
+		else
+		if(activeTile instanceof RockTile)
+		{
+			tile = new RockTile(x - (x%32), y - (y%32));
+		}
+		
 		setTileAt(x, y, tile);
 	}
 	
@@ -230,9 +267,43 @@ public class GameController
 
 	public void makeFloorLine() 
 	{
+		Tile temp = activeTile;
+		
+		activeTile = new FloorTile(0, 0);
+		
 		for(int i=2; i<=17; i++)
 		{
-			placeTileAtPixels(16*32, i*32, false);
+			placeTileAtPixels(16*32, i*32);
 		}
+		
+		activeTile = temp;
+	}
+
+	public int getCredits() 
+	{
+		return credits;
+	}
+
+	public void setCredits(int credits) 
+	{
+		this.credits = credits;
+		fireCurrencyChanged(this, this.credits);
+	}
+	
+	public void subtractCredits(int credits)
+	{
+		this.credits -= credits;
+		fireCurrencyChanged(this, this.credits);
+	}
+	
+	public void addCredits(int credits)
+	{
+		this.credits += credits;
+		fireCurrencyChanged(this, this.credits);
+	}
+
+	public void setActiveTile(Tile tile) 
+	{
+		activeTile = tile;
 	}
 }

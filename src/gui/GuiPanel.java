@@ -26,10 +26,13 @@ import javax.swing.JPanel;
 
 import engine.Game;
 import engine.GameController;
+import events.CurrencyChangeEvent;
+import events.CurrencyListener;
 import events.TileChangeListener;
 import events.TileSelectionChangedEvent;
 import graphics.Sprite;
 import input.InputKeyboardListener;
+import net.miginfocom.swing.MigLayout;
 import tiles.Tile;
 import tower.Tower;
 
@@ -40,6 +43,7 @@ public class GuiPanel
 	private Game game;
 	
 	private TileChangeListener tileChangeListener;
+	private CurrencyListener currencyListener;
 	private Dimension size;
 	private JPanel tileInfoPanel;
 	
@@ -50,12 +54,14 @@ public class GuiPanel
 	private JLabel tileAtkSpeed;
 	private JLabel tileRange;
 	private JLabel tileCoords;
+	private JLabel currentCurrencyLabel;
 	
 	public GuiPanel(Dimension size, Game game, GameController gameController) 
 	{
 		this.size = size;
 		this.game = game;
 		this.controller = gameController;
+		initComponents();
 		
 		tileChangeListener = new TileChangeListener(game, controller)
 		{
@@ -67,21 +73,7 @@ public class GuiPanel
 					return;
 				}
 				
-				Sprite sprite = tile.getSprite();
-				BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
-				int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-				
-				for(int i=0; i < pixels.length; i++)
-				{
-					if(i<32)
-					{
-						continue;
-					}
-					if(sprite != null)
-					{
-						pixels[i] = sprite.pixels[i];
-					}
-				}
+				BufferedImage image = tile.getSpriteAsImage();
 				tileSpriteLabel.setIcon(new ImageIcon(image.getScaledInstance(96, 96, BufferedImage.TYPE_INT_RGB)));
 				tileText.setText(tile.getClass().getSimpleName());
 				if(tile instanceof Tower)
@@ -102,14 +94,21 @@ public class GuiPanel
 			}
 		};
 		
-		controller.registerTileChangeListener(tileChangeListener);
+		currencyListener = new CurrencyListener(game, controller)
+		{
+				@Override
+				public void currencyChangeEvent(CurrencyChangeEvent e) {
+					currentCurrencyLabel.setText(e.getData().toString());
+				}
+		};
 		
-		initComponents();
+		controller.registerTileChangeListener(tileChangeListener);
+		controller.registerCurrencyListener(currencyListener);
+		
 		setPreferredSize(size);
 		setMinimumSize(size);
 		setSize(size);
-		setBackground(Color.BLACK);
-		setBorder(BorderFactory.createEmptyBorder());
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 	}
 	
 	private void initComponents() 
@@ -138,33 +137,26 @@ public class GuiPanel
 		});
 		
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-		
+		buttonPanel.setBackground(Color.BLACK);
 		buttonPanel.add(spawnEnemyB);
 		buttonPanel.add(makeFloorLineB);
 		
 		panel = new JPanel();
-		panel.setBorder(BorderFactory.createEmptyBorder());
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		panel.setPreferredSize(size);
-		panel.setMinimumSize(size);
-		panel.setSize(size);
 		panel.setBackground(Color.BLACK);
+		panel.setLayout(new MigLayout(	"",
+										"[]40[][]",//columns
+										"[][]" //rows
+		));
 		
 		tileSpriteLabel = new JLabel();
 		JPanel tilePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		tilePanel.setBackground(Color.black);
-		
-		Dimension tilePanelSize = new Dimension(400, (int)size.getHeight());
+		tilePanel.setBackground(Color.BLACK);
 		tileInfoPanel = new JPanel();
-		tileInfoPanel.setLayout(new BoxLayout(tileInfoPanel, BoxLayout.Y_AXIS));
+		tileInfoPanel.setBorder(BorderFactory.createEmptyBorder());
+		tileInfoPanel.setLayout(new MigLayout("", "[grow]", "[13]0[13!]0[13!]0[13!]0[13!]0[13!]"));
 		tileInfoPanel.setBackground(Color.BLACK);
-		tileInfoPanel.setSize(tilePanelSize);
-		tileInfoPanel.setMinimumSize(tilePanelSize);
-		tileInfoPanel.setMaximumSize(tilePanelSize);
-		tileInfoPanel.setPreferredSize(tilePanelSize);
 		
-		Font font = new Font("HELVETICA", Font.PLAIN, 14);
+		Font font = new Font("HELVETICA", Font.PLAIN, 12);
 		tileText = new JLabel();
 		tileText.setForeground(Color.WHITE);
 		tileText.setFont(font);
@@ -181,19 +173,35 @@ public class GuiPanel
 		tileCoords.setForeground(Color.WHITE);
 		tileCoords.setFont(font);
 		
-		tileInfoPanel.add(tileSpriteLabel);
-		tileInfoPanel.add(tileText);
-		tileInfoPanel.add(tileDamage);
-		tileInfoPanel.add(tileAtkSpeed);
-		tileInfoPanel.add(tileRange);
-		tileInfoPanel.add(tileCoords);
+		tileInfoPanel.add(tileSpriteLabel, "wrap");
+		tileInfoPanel.add(tileText, "wrap");
+		tileInfoPanel.add(tileCoords, "wrap");
+		tileInfoPanel.add(tileDamage, "wrap");
+		tileInfoPanel.add(tileAtkSpeed, "wrap");
+		tileInfoPanel.add(tileRange, "wrap");
 		
 		tilePanel.add(tileInfoPanel);
 		
-		panel.add(buttonPanel);
-		panel.add(Box.createHorizontalGlue());
-		panel.add(tilePanel);
-		panel.setBorder(BorderFactory.createEmptyBorder());
+		TowerToolbar towerToolbar = new TowerToolbar(controller);
+		
+		JPanel currencyPanel = new JPanel(new MigLayout("","[]","50[top][]"));
+		currencyPanel.setBackground(Color.black);
+		
+		JLabel currencyLabel = new JLabel("Currency: ");
+		currencyLabel.setForeground(Color.WHITE);
+		currentCurrencyLabel = new JLabel("0");
+		currentCurrencyLabel.setForeground(Color.WHITE);
+		
+		currencyPanel.add(currencyLabel);
+		currencyPanel.add(currentCurrencyLabel, "wrap");
+		
+		panel.add(towerToolbar, "cell 0 0");
+		panel.add(buttonPanel, "cell 0 1");
+		panel.add(tilePanel, "cell 1 0 1 2");
+		panel.add(currencyPanel, "cell 2 0 1 2, dock east");
+		
+		
 		add(panel);
+		
 	}
 }

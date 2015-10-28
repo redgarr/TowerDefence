@@ -35,7 +35,6 @@ public class AnimatedSprite
 				lastTime = System.currentTimeMillis();
 			}
 		}
-//		pixels = spriteFrames[current].pixels;
 		
 		return spriteFrames[current];
 	}

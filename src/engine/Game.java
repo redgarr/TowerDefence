@@ -100,6 +100,7 @@ public class Game
 		addKeyListener(new InputKeyboardListener(this, controller));
 		addMouseMotionListener(new InputMouseMovementListener(this, controller));
 		
+		controller.setCredits(500);
 	}
 	
 	public synchronized void start()

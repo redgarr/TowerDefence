@@ -1,6 +1,7 @@
 package graphics;
 
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +39,8 @@ public class Renderer {
 	{
 		drawTiles();
 		drawActors();
-		drawGrid();
+		drawGrid0();//60ms
+
 	}
 	
 	private void drawActors() 
@@ -61,24 +63,24 @@ public class Renderer {
 		}
 	}
 	
-	public void drawGrid()
+	public void drawGrid0()
 	{
-		for(int y = 0; y < height; y++)
+		for(int y = 0; y<height; y+=32)
 		{
-			for(int x = 0; x < width; x++)
+			for(int x = 0; x<=width; x++)
 			{
-				if(x%32==0)
-				{
-					pixels[x+y*width] = 0x111111;
-				}
-				
-				if(y%32==0)
-				{
-					pixels[x+y*width] = 0x111111;
-				}
+				pixels[x+y*width] = 0x111111;
+			}
+		}
+		for(int x = 0; x<width; x+=32)
+		{
+			for(int y = 0; y<height; y++)
+			{
+				pixels[x+y*width] = 0x111111;
 			}
 		}
 	}
+	
 	public int[] getPixels()
 	{
 		return pixels;

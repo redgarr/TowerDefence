@@ -76,7 +76,6 @@ public class AbstractActor implements Actor
 				int pixelIndex = (int) (this.x+x+(this.y+y)*Game.width);
 				if(sprite.getSprite().pixels[x+(y*sprite.SIZE)] == -65281)
 				{
-					pixels[this.x+5 + this.y+5*Game.width] = 0xff00ff;
 					continue;
 				}
 				pixels[pixelIndex] = sprite.getSprite().pixels[x+(y*sprite.SIZE)];
@@ -297,7 +296,7 @@ public class AbstractActor implements Actor
 	public void inflictDamage(double damage) 
 	{
 		this.health -= damage;
-		SoundClip.stab.play();
+		SoundClip.stab.randomPitch().play();
 		if(health <=0)
 		{
 			alive = false;

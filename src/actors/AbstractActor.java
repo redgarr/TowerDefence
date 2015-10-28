@@ -126,7 +126,7 @@ public class AbstractActor implements Actor
 	{
 		if(currentTile.getCoordinates().getX() == 17 && currentTile.getCoordinates().getY() == 2)
 		{
-			alive = false;
+			die();
 		}
 		
 		currentTile = controller.getTileAtPixels(x, y);
@@ -300,9 +300,15 @@ public class AbstractActor implements Actor
 		SoundClip.stab.play();
 		if(health <=0)
 		{
-			alive = false;
-			SoundClip.pain.play();
+			die();
 		}
+	}
+
+	private void die()
+	{
+		alive = false;
+		controller.getActors().remove(this);
+		SoundClip.pain.play();
 	}
 
 	@Override

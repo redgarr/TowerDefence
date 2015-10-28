@@ -69,12 +69,6 @@ public class GameController
 		for(Actor a : actors)
 		{
 			a.tick();
-			
-			if(!a.isAlive())
-			{
-				killActor(a);
-				actors.remove(a);
-			}
 		}
 		
 		for(Tile tile : tiles)
@@ -101,10 +95,6 @@ public class GameController
 		}
 	}
 	
-	private void killActor(Actor a) 
-	{
-	}
-
 	public Tile[] getTiles()
 	{
 		return tiles;

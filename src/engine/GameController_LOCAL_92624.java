@@ -1,11 +1,9 @@
 package engine;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.io.ObjectOutputStream.PutField;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import actors.AbstractActor;
 import actors.Actor;
@@ -39,11 +37,12 @@ public class GameController
 		this.game = game;
 		this.activeTile = new SimpleTower(0, 0, this);
 		tiles = new Tile[numTiles];
-		actors = new CopyOnWriteArrayList<Actor>();
+		actors = new ArrayList<Actor>();
 		tileChangeListeners = new ArrayList<TileChangeListener>();
 		currencyListeners = new ArrayList<CurrencyListener>();
 		
 		generateMap();
+		createActors(); 
 	}
 	
 	public void generateAIActor()
@@ -53,6 +52,10 @@ public class GameController
 	}
 	
 	
+	private void createActors() 
+	{
+	}
+
 	private void generateMap()
 	{
 		//32x18
@@ -64,26 +67,27 @@ public class GameController
 		Tile temp = activeTile;
 		activeTile = new FloorTile(0,0);
 		
-		
-		for(int i=0; i<=16; i++)
-		{
-			placeTileAtCoords(new Point(i,8));
-		}
-		for(int i=0; i<=7; i++)
-		{
-			placeTileAtCoords(new Point(16, i));
-		}
+		placeTileAtPixels(16*32, 0*32);
+		placeTileAtPixels(16*32, 1*32);
+		placeTileAtPixels(16*32, 16*32);
+		placeTileAtPixels(16*32, 17*32);
 		
 		activeTile = temp;
 	}
 	
-
-
 	public void tick()
 	{
-		for(Actor a : actors)
+		Iterator<Actor> actIter = actors.iterator();
+		while(actIter.hasNext())
 		{
+			Actor a = actIter.next();
 			a.tick();
+			
+			if(!a.isAlive())
+			{
+				killActor(a);
+				actIter.remove();
+			}
 		}
 		
 		for(Tile tile : tiles)
@@ -123,6 +127,10 @@ public class GameController
 		}
 	}
 	
+	private void killActor(Actor a) 
+	{
+	}
+
 	public Tile[] getTiles()
 	{
 		return tiles;
@@ -138,28 +146,28 @@ public class GameController
 		a.moveActorTo(t);
 	}
 	
-	public Tile getTileAtCoords(Point2D p)
+	public Tile getTileAt(int x, int y)
 	{
-		int x = (int) p.getX();
-		int y = (int) p.getY();
-		
-		if(x < Game.width / 32 && y < Game.height / 32)
+		if(x > 1 && y > 1 && x < Game.width / 32 && y < Game.height / 32)
 		{
-			int tileIndex = x + (y * 32);
+			int tileIndex = (x - 1) + ((y - 1) * 32);
 			return tiles[tileIndex];
 		}
 		return null;
 	}
 	
-	
-	private void setTileAtPixels(int x, int y, Tile tile)
+	public void setTileAt(int x, int y, Tile tile)
 	{
-		Tile currTile = getTileAtPixels(x, y);
 		int tileIndex = (x / 32) + (y / 32) * 32;
+		Tile currTile = tiles[tileIndex];
 		tiles[tileIndex] = tile;
 		if(currTile == selectedTile)
 		{
 			fireTileChanged(this, tile);
+		}
+		if(tile instanceof Tower)
+		{
+			subtractCredits((int)((Tower) tile).getCost());
 		}
 	}
 	
@@ -184,25 +192,25 @@ public class GameController
 		List<Tile> tiles = new ArrayList<Tile>();
 		Point point = tile.getCoordinates();
 		
-		Tile t = getTileAtCoords(new Point((int)point.getX()-1, (int)point.getY()));
+		Tile t = getTileAt((int)point.getX()-1, (int)point.getY());
 		if(t != null && t instanceof FloorTile)
 		{
 			tiles.add(t);
 		}
 		
-		t = getTileAtCoords(new Point((int)point.getX()+1, (int)point.getY()));
+		t = getTileAt((int)point.getX()+1, (int)point.getY());
 		if(t != null && t instanceof FloorTile)
 		{
 			tiles.add(t);
 		}
 
-		t = getTileAtCoords(new Point((int)point.getX(), (int)point.getY()-1));
+		t = getTileAt((int)point.getX(), (int)point.getY()-1);
 		if(t != null && t instanceof FloorTile)
 		{
 			tiles.add(t);
 		}
 
-		t = getTileAtCoords(new Point((int)point.getX(), (int)point.getY()+1));
+		t = getTileAt((int)point.getX(), (int)point.getY()+1);
 		if(t != null && t instanceof FloorTile)
 		{
 			tiles.add(t);
@@ -211,10 +219,6 @@ public class GameController
 		return tiles;
 	}
 	
-	public void placeTileAtCoords(Point2D p) 
-	{
-		placeTileAtPixels((int)p.getX()*32, (int)p.getY()*32);
-	}
 	public void placeTileAtPixels(int x, int y)
 	{
 		Tile tile = null;
@@ -234,13 +238,7 @@ public class GameController
 			tile = new RockTile(x - (x%32), y - (y%32));
 		}
 		
-		setTileAtPixels(x, y, tile);
-		
-		if(tile instanceof Tower)
-		{
-			subtractCredits((int)((Tower) tile).getCost());
-		}
-		
+		setTileAt(x, y, tile);
 	}
 	
 	public Tile selectTileAtPixels(int x, int y)
@@ -307,17 +305,5 @@ public class GameController
 	public void setActiveTile(Tile tile) 
 	{
 		activeTile = tile;
-	}
-
-	public void testTile(int x, int y) 
-	{
-		Tile tile = getTileAtPixels(x,y);
-		placeTileAtCoords(new Point(13, 13));
-		
-		System.out.println("=================================");
-		System.out.println(tile.getClass());
-		System.out.println("Pixels: " + tile.getX() + " , " + tile.getY());
-		System.out.println("Coords: " + tile.getCoordinates());
-		System.out.println("=================================");
 	}
 }

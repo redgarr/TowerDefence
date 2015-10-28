@@ -1,5 +1,7 @@
 package actors;
 
+import java.awt.Point;
+
 import engine.GameController;
 import graphics.Sprite;
 import routing.PathfindingModule;
@@ -11,18 +13,14 @@ public class HostileActor
 	public HostileActor(GameController controller, PathfindingModule pathFinder) 
 	{
 		super(controller, pathFinder);
-		setCurrentTile(controller.getTileAt(17,17));
-		moveActorTo(controller.getTileAt(17,2));
+		setCurrentTile(controller.getTileAtCoords(new Point(0,8)));
+		moveActorTo(controller.getTileAtCoords(new Point(16,0)));
 	}
 	
 	@Override
 	public void tick() 
 	{
 		super.tick();
-		
-		
-		
-		
 	}
 	
 

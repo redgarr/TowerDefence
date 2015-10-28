@@ -50,7 +50,7 @@ public class InputMouseListener
 			case MouseEvent.BUTTON2: controller.generateAIActor(); //Generate an AI actor
 									break;
 			//Right click	
-			case MouseEvent.BUTTON3: 
+			case MouseEvent.BUTTON3: controller.testTile(e.getX(), e.getY());
 									break;
 			case 4: controller.generateAIActor(); //Generate an AI actor
 					break;

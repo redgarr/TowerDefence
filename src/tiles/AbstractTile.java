@@ -38,7 +38,6 @@ public abstract class AbstractTile
 	
 	public AbstractTile(int x, int y) 
 	{
-		Random rand = new Random();
 		this.x = x;
 		this.y = y;
 		size = new Dimension(32, 32);
@@ -121,7 +120,7 @@ public abstract class AbstractTile
 	
 	public Point getCoordinates()
 	{
-		return new Point((int)Math.floor(x/32)+1, (int)Math.floor(y/32)+1);
+		return new Point((int)Math.floor(x/32), (int)Math.floor(y/32));
 	}
 	
 	public void tick()

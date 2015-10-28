@@ -38,8 +38,8 @@ public class Renderer {
 	public void render(Graphics g)
 	{
 		drawTiles();
-		drawActors();
 		drawGrid0();//60ms
+		drawActors();
 
 	}
 	

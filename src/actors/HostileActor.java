@@ -19,10 +19,6 @@ public class HostileActor
 	public void tick() 
 	{
 		super.tick();
-		
-		
-		
-		
 	}
 	
 

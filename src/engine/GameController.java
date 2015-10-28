@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream.PutField;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import actors.AbstractActor;
 import actors.Actor;
@@ -31,7 +32,7 @@ public class GameController
 	{
 		this.game = game;
 		tiles = new Tile[numTiles];
-		actors = new ArrayList<Actor>();
+		actors = new CopyOnWriteArrayList<Actor>();
 		tileChangeListeners = new ArrayList<TileChangeListener>();
 		
 		generateMap();
@@ -66,15 +67,14 @@ public class GameController
 	public void tick()
 	{
 		Iterator<Actor> actIter = actors.iterator();
-		while(actIter.hasNext())
+		for(Actor a : actors)
 		{
-			Actor a = actIter.next();
 			a.tick();
 			
 			if(!a.isAlive())
 			{
 				killActor(a);
-				actIter.remove();
+				actors.remove(a);
 			}
 		}
 		

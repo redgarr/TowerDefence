@@ -66,7 +66,6 @@ public class GameController
 	
 	public void tick()
 	{
-		Iterator<Actor> actIter = actors.iterator();
 		for(Actor a : actors)
 		{
 			a.tick();

@@ -41,6 +41,7 @@ public class TowerIconPanel<T extends Tower>
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				System.out.println("Adding tile: " + tile);
 				controller.setActiveTile(tile);
 			}
 		});

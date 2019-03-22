@@ -11,9 +11,7 @@ import javax.swing.JPanel;
 
 import engine.GameController;
 import graphics.Sprite;
-import tiles.FloorTile;
-import tiles.RockTile;
-import tiles.Tile;
+import tiles.*;
 import tower.SimpleTower;
 import tower.Tower;
 
@@ -42,9 +40,14 @@ public class TowerToolbar
 		Tower simpleTower = new SimpleTower(0, 0, null);
 		Tile floorTile = new FloorTile(0, 0);
 		Tile rockTile = new RockTile(0, 0);
+		Tile deathTile = new DeathTile(0, 0);
+		Tile spawnTile = new SpawnTile(0, 0);
+
 		add(new TowerIconPanel(controller, simpleTower, simpleTower.getSpriteAsImage()));
 		add(new TowerIconPanel(controller, floorTile, floorTile.getSpriteAsImage()));
 		add(new TowerIconPanel(controller, rockTile, Sprite.rocks_mid.getSpriteAsImage()));
+		add(new TowerIconPanel(controller, deathTile, Sprite.actor_friendly_1.getSpriteAsImage()));
+		add(new TowerIconPanel(controller, spawnTile, Sprite.actor_enemy_1.getSpriteAsImage()));
 	}
 	
 }

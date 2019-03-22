@@ -92,7 +92,7 @@ public class AbstractTower extends AbstractTile implements Tower
 	private void shoot(Actor target)
 	{
 		long currentTime = System.nanoTime();
-		 
+
 		long passedTime = (currentTime - lastShot)/1000000;
 		if(passedTime > attackSpeed)
 		{

@@ -11,6 +11,7 @@ import graphics.AnimatedSprite;
 import graphics.Sprite;
 import routing.NoRouteFoundException;
 import routing.PathfindingModule;
+import tiles.DeathTile;
 import tiles.Tile;
 
 public class AbstractActor implements Actor
@@ -135,7 +136,7 @@ public class AbstractActor implements Actor
 	
 	public void tick()
 	{
-		if(currentTile.getCoordinates().getX() == 16 && currentTile.getCoordinates().getY() == 0)
+		if(currentTile instanceof DeathTile)
 		{
 			die();
 		}

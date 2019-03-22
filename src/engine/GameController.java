@@ -15,9 +15,7 @@ import events.CurrencyListener;
 import events.TileChangeListener;
 import events.TileSelectionChangedEvent;
 import routing.PathfindingModule;
-import tiles.FloorTile;
-import tiles.RockTile;
-import tiles.Tile;
+import tiles.*;
 import tower.SimpleTower;
 import tower.Tower;
 
@@ -33,7 +31,9 @@ public class GameController
 	private List<TileChangeListener> tileChangeListeners;
 	private List<CurrencyListener> currencyListeners;
 	private Tile activeTile;
-	
+	private Tile deathTile;
+	private Tile spawnTile;
+
 	public GameController(Game game) 
 	{
 		this.game = game;
@@ -77,8 +77,6 @@ public class GameController
 		activeTile = temp;
 	}
 	
-
-
 	public void tick()
 	{
 		for(Actor a : actors)
@@ -137,7 +135,7 @@ public class GameController
 	{
 		a.moveActorTo(t);
 	}
-	
+
 	public Tile getTileAtCoords(Point2D p)
 	{
 		int x = (int) p.getX();
@@ -146,6 +144,8 @@ public class GameController
 		if(x < Game.width / 32 && y < Game.height / 32)
 		{
 			int tileIndex = x + (y * 32);
+			System.out.println("x = " + x);
+			System.out.println("y = " + y);
 			return tiles[tileIndex];
 		}
 		return null;
@@ -233,6 +233,15 @@ public class GameController
 		{
 			tile = new RockTile(x - (x%32), y - (y%32));
 		}
+		else if(activeTile instanceof DeathTile) {
+			tile = new DeathTile(x - (x % 32), y - (y % 32));
+			deathTile = tile;
+		}
+		else if(activeTile instanceof SpawnTile) {
+			tile = new SpawnTile((x - (x % 32)), y - (y % 32));
+			spawnTile = tile;
+		}
+
 		
 		setTileAtPixels(x, y, tile);
 		
@@ -309,7 +318,7 @@ public class GameController
 		activeTile = tile;
 	}
 
-	public void testTile(int x, int y) 
+	public void testTile(int x, int y)
 	{
 		Tile tile = getTileAtPixels(x,y);
 		placeTileAtCoords(new Point(13, 13));
@@ -319,5 +328,13 @@ public class GameController
 		System.out.println("Pixels: " + tile.getX() + " , " + tile.getY());
 		System.out.println("Coords: " + tile.getCoordinates());
 		System.out.println("=================================");
+	}
+
+	public Tile getSpawnTile() {
+		return spawnTile;
+	}
+
+	public Tile getDeathTile() {
+		return deathTile;
 	}
 }

@@ -274,6 +274,8 @@ public abstract class AbstractTile
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.getClass().getName()+"(");
 		sb.append("Coordinates=" + getCoordinates());
+		sb.append("X=" + getX());
+		sb.append("Y=" + getY());
 		sb.append(")");
 		return sb.toString();
 	}

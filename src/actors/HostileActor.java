@@ -13,8 +13,9 @@ public class HostileActor
 	public HostileActor(GameController controller, PathfindingModule pathFinder) 
 	{
 		super(controller, pathFinder);
-		setCurrentTile(controller.getTileAtCoords(new Point(0,8)));
-		moveActorTo(controller.getTileAtCoords(new Point(16,0)));
+
+		setCurrentTile(controller.getTileAtCoords(controller.getSpawnTile().getCoordinates()));
+		moveActorTo(controller.getTileAtCoords(controller.getDeathTile().getCoordinates()));
 	}
 	
 	@Override

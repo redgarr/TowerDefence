@@ -174,7 +174,6 @@ public class Game
 		
 		Graphics g = bs.getDrawGraphics();
 		renderer.clear();
-		
 		renderer.render(g);
 		
 		for(int i=0; i < pixels.length; i++)

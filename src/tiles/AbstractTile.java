@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,10 +38,29 @@ public abstract class AbstractTile
 	
 	public AbstractTile(int x, int y) 
 	{
-		Random rand = new Random();
 		this.x = x;
 		this.y = y;
 		size = new Dimension(32, 32);
+	}
+	
+	public BufferedImage getSpriteAsImage() 
+	{
+		BufferedImage image = new BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB);
+		int[] pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+		
+		for(int i=0; i < pixels.length; i++)
+		{
+			if(i<32)
+			{
+				continue;
+			}
+			if(sprite != null)
+			{
+				pixels[i] = sprite.pixels[i];
+			}
+		}
+		
+		return image;
 	}
 	
 	public void setPrevious(Tile t)
@@ -100,7 +120,7 @@ public abstract class AbstractTile
 	
 	public Point getCoordinates()
 	{
-		return new Point((int)Math.floor(x/32)+1, (int)Math.floor(y/32)+1);
+		return new Point((int)Math.floor(x/32), (int)Math.floor(y/32));
 	}
 	
 	public void tick()
@@ -254,6 +274,8 @@ public abstract class AbstractTile
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.getClass().getName()+"(");
 		sb.append("Coordinates=" + getCoordinates());
+		sb.append("X=" + getX());
+		sb.append("Y=" + getY());
 		sb.append(")");
 		return sb.toString();
 	}

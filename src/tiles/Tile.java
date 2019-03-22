@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 import graphics.Sprite;
@@ -29,5 +30,5 @@ public interface Tile
 	public void setNext(Tile t);
 	public Tile getPrevious();
 	public Tile getNext();
-	
+	public BufferedImage getSpriteAsImage();
 }

@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Random;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -20,14 +21,20 @@ import engine.Game;
 public class SoundClip 
 {
 	
-	public static SoundClip stab = new SoundClip("/sounds/stab.wav");
-	public static SoundClip pain = new SoundClip("/sounds/pain.wav");
+	public static SoundClip stab = new SoundClip("/sounds/stab.wav", true);
+	public static SoundClip pain = new SoundClip("/sounds/pain.wav", true);
 	
 	private Clip clip;
 	private FloatControl gainControl;
+	private boolean randomPitch;
+	private Random random;
+	private float frequency, pitch;
 	
-	public SoundClip(String path) 
+	public SoundClip(String path, boolean randomPitch) 
 	{
+		this.randomPitch = randomPitch;
+		this.random = new Random();
+		pitch = 1;
 		try
 		{
 			InputStream audioSrc = getClass().getResourceAsStream(path);
@@ -42,10 +49,9 @@ public class SoundClip
 														baseFormat.getSampleRate(), 
 														false);
 			AudioInputStream dais = AudioSystem.getAudioInputStream(decodeFormat, ais);
-			
 			clip = AudioSystem.getClip();
 			clip.open(dais);
-			
+			frequency = clip.getFormat().getSampleRate();
 			gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
 			
 		}
@@ -61,6 +67,10 @@ public class SoundClip
 		{
 			return;
 		}
+		if(clip.isControlSupported((FloatControl.Type.SAMPLE_RATE)))
+		{
+			((FloatControl)clip.getControl((FloatControl.Type.SAMPLE_RATE))).setValue(frequency*pitch);
+		}
 		
 		stop();
 		
@@ -69,6 +79,13 @@ public class SoundClip
 		{
 			clip.start();
 		}
+		pitch = 1;
+	}
+	
+	public SoundClip randomPitch()
+	{
+		pitch = random.nextFloat()+0.5f;
+		return this;
 	}
 	
 	public void stop()

@@ -11,6 +11,7 @@ import graphics.AnimatedSprite;
 import graphics.Sprite;
 import routing.NoRouteFoundException;
 import routing.PathfindingModule;
+import tiles.DeathTile;
 import tiles.Tile;
 
 public class AbstractActor implements Actor
@@ -76,7 +77,6 @@ public class AbstractActor implements Actor
 				int pixelIndex = (int) (this.x+x+(this.y+y)*Game.width);
 				if(sprite.getSprite().pixels[x+(y*sprite.SIZE)] == -65281)
 				{
-					pixels[this.x+5 + this.y+5*Game.width] = 0xff00ff;
 					continue;
 				}
 				pixels[pixelIndex] = sprite.getSprite().pixels[x+(y*sprite.SIZE)];
@@ -87,11 +87,23 @@ public class AbstractActor implements Actor
 	
 	public void drawHealthBar(int[] pixels)
 	{
-		
+		if(health >= 100)
+		{
+			return;
+		}
 		int startWidth = 5;
 		int endWidth = 27;
 		int startHeight = 6;
 		int endHeight = 10;
+		int color = 0;
+		if(health<=30)
+		{
+			color = 0xff0000;
+		}
+		else
+		{
+			color = 0x00ff00;
+		}
 		
 		for(int i = startWidth; i<=endWidth; i++)
 		{
@@ -117,16 +129,16 @@ public class AbstractActor implements Actor
 		{
 			for(int k=startHeight; k<=endHeight; k++)
 			{
-				pixels[x+i+(y-k)*Game.width] = 0x00ff00;
+				pixels[x+i+(y-k)*Game.width] = color;
 			}
 		}
 	}
 	
 	public void tick()
 	{
-		if(currentTile.getCoordinates().getX() == 17 && currentTile.getCoordinates().getY() == 2)
+		if(currentTile instanceof DeathTile)
 		{
-			alive = false;
+			die();
 		}
 		
 		currentTile = controller.getTileAtPixels(x, y);
@@ -297,12 +309,18 @@ public class AbstractActor implements Actor
 	public void inflictDamage(double damage) 
 	{
 		this.health -= damage;
-		SoundClip.stab.play();
+		SoundClip.stab.randomPitch().play();
 		if(health <=0)
 		{
-			alive = false;
-			SoundClip.pain.play();
+			die();
 		}
+	}
+
+	private void die()
+	{
+		alive = false;
+		controller.getActors().remove(this);
+		SoundClip.pain.play();
 	}
 
 	@Override

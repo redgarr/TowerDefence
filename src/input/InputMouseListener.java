@@ -44,13 +44,13 @@ public class InputMouseListener
 		switch(e.getButton())
 		{
 			//Left click
-			case MouseEvent.BUTTON1: controller.placeTileAtPixels(e.getX(), e.getY(), true);
+			case MouseEvent.BUTTON1: controller.placeTileAtPixels(e.getX(), e.getY());
 									break;
 			//Mouse wheel click
 			case MouseEvent.BUTTON2: controller.generateAIActor(); //Generate an AI actor
 									break;
 			//Right click	
-			case MouseEvent.BUTTON3: controller.placeTileAtPixels(e.getX(), e.getY(), false);
+			case MouseEvent.BUTTON3: controller.testTile(e.getX(), e.getY());
 									break;
 			case 4: controller.generateAIActor(); //Generate an AI actor
 					break;
